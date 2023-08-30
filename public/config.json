@@ -1,9 +1,13 @@
 {
   "environments": [
     {
-      "name": "TRAINING",
-      "baseUrl": "https://api.training.empire.britned.com",
+      "name": "PRODUCTION",
+      "baseUrl": "https://api.empire.britned.com",
       "default": true
+    },
+    {
+      "name": "TRAINING",
+      "baseUrl": "https://api.training.empire.britned.com"
     }
   ],
   "labels": {}
