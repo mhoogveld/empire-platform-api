@@ -64,11 +64,29 @@
 
       // fetch environment data
       for (const environment of config.environments) {
-        const apiVersion = await fetch(`${environment.baseUrl}/v1/public/version`)
-          .then(response => response.json())
+        let apiVersionResponse;
+        try {
+          apiVersionResponse = await fetch(`${environment.baseUrl}/v1/public/version`);
+        }
+        catch (error) {
+          console.error(`Failed to fetch version info for ${environment.name}`);
+          continue;
+        }
+
+        if (!apiVersionResponse.ok) {
+          console.error(`Failed to fetch version info for ${environment.name}`);
+          continue;
+        }
+
+        const apiVersion = await apiVersionResponse.json()
           .then(json => `v${json['apiVersion']}`);
 
         const version = versions.find(v => v.name === apiVersion)
+
+        if (!version) {
+          console.error(`Failed to find version ${apiVersion} in version list`);
+          continue;
+        }
 
         version.environments.push(environment.name);
         version.default = environment.default;
@@ -95,7 +113,7 @@
 
       // determine selected version
       const urlName = new URLSearchParams(window.location.search).get('urls.primaryName');
-      const defaultName = versions.find(version => version.default).name;
+      const defaultName = versions.find(version => version.default)?.name || versions.slice(-1)[0].name;
       const selectedName = urlName || defaultName;
 
       // initialize Swagger UI
