@@ -27,6 +27,7 @@ The **Platform API** is a REST-style HTTP API operating mostly with JSON payload
 
 * [🧭 **API Navigator**](https://britned.github.io/empire-platform-api) - the recommended way of exploring the API
 * [📚 **openapi.yaml**](openapi.yaml) - the latest specification in _OpenAPI 3.0.3_ format
+* [👩‍🏫 **Wiki**](https://github.com/britned/empire-platform-api/wiki) - demonstration of various API use-cases
 
 ## Table of Contents
 
