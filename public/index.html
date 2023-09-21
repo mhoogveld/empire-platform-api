@@ -89,7 +89,9 @@
         }
 
         version.environments.push(environment.name);
-        version.default = environment.default;
+        if (!version.default) {
+          version.default = environment.default;
+        }
       };
 
       // attach optional labels
