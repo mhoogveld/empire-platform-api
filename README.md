@@ -27,7 +27,7 @@ The **Platform API** is a REST-style HTTP API operating mostly with JSON payload
 
 * [🧭 **API Navigator**](https://britned.github.io/empire-platform-api) - the recommended way of exploring the API
 * [📚 **openapi.yaml**](openapi.yaml) - the latest specification in _OpenAPI 3.0.3_ format
-* [👩‍🏫 **Wiki**](https://github.com/britned/empire-platform-api/wiki) - demonstration of various API use-cases
+* [👩‍🏫 **Wiki**](https://github.com/britned/empire-platform-api/wiki) - demonstration of various API use-cases with supporting business logic _(including [Auctions](https://github.com/britned/empire-platform-api/wiki/Auctions), [Nominations](https://github.com/britned/empire-platform-api/wiki/Nominations))_ to ease integration
 
 ## Table of Contents
 
@@ -43,7 +43,7 @@ The **Platform API** is a REST-style HTTP API operating mostly with JSON payload
 
 ## 🏃 Getting Started
 
-In order to programmatically use the **Platform API** Participants need to obtain an _API Key_. Follow these steps to generate one:
+In order to programmatically use the **Platform API** Participants must have a valid user account and need to obtain an _API Key_. Follow these steps to generate one:
 
 1. First visit an available [environment](#-environments) of **Empire** through its _Web Frontend URL_
 2. Click **Login** and use your your email address, password and 2FA token to authenticate
@@ -65,6 +65,8 @@ curl -X 'GET' \
 ```
 
 > ⚠️ Please always make sure you test your  _API Key_ on the environment that you generated your key on as _API Keys_ are **NOT** shared between the different [environments](#-environments)!
+
+> ⚠️ Users that are not registered with BritNed are able to use the /v1/public/... endpoints for fetching publicly available data from Empire. See the [**API Navigator**](https://britned.github.io/empire-platform-api) for more information.
 
 ## 🔌 Environments
 
