@@ -66,7 +66,7 @@ curl -X 'GET' \
 
 > ⚠️ Please always make sure you test your  _API Key_ on the environment that you generated your key on as _API Keys_ are **NOT** shared between the different [environments](#-environments)!
 
-> ⚠️ Users that are not registered with BritNed are able to use the /v1/public/... endpoints for fetching publicly available data from Empire. See the [**API Navigator**](https://britned.github.io/empire-platform-api) for more information.
+> ⚠️ Users that are not registered with BritNed are able to use the /v1/public/... endpoints for fetching publicly available data from Empire. See the [**API Navigator**](https://britned.github.io/empire-platform-api) for more information. Please see the relevant [Public data](https://github.com/britned/empire-platform-api/wiki/Public-data) page on Wiki for more information.
 
 ## 🔌 Environments
 
