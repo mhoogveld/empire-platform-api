@@ -27,7 +27,8 @@ The **Platform API** is a REST-style HTTP API operating mostly with JSON payload
 
 * [🧭 **API Navigator**](https://britned.github.io/empire-platform-api) - the recommended way of exploring the API
 * [📚 **openapi.yaml**](openapi.yaml) - the latest specification in _OpenAPI 3.0.3_ format
-* [👩‍🏫 **Wiki**](https://github.com/britned/empire-platform-api/wiki) - demonstration of various API use-cases with supporting business logic _(including [Auctions](https://github.com/britned/empire-platform-api/wiki/Auctions), [Nominations](https://github.com/britned/empire-platform-api/wiki/Nominations))_ to ease integration
+* [👩‍🏫 **Wiki**](https://github.com/britned/empire-platform-api/wiki) - demonstration of various API use-cases to ease the integration
+  - with supporting business logic including [Auctions](https://github.com/britned/empire-platform-api/wiki/Auctions), [Nominations](https://github.com/britned/empire-platform-api/wiki/Nominations), etc
 
 ## Table of Contents
 
@@ -66,7 +67,7 @@ curl -X 'GET' \
 
 > ⚠️ Please always make sure you test your  _API Key_ on the environment that you generated your key on as _API Keys_ are **NOT** shared between the different [environments](#-environments)!
 
-> ⚠️ Users that are not registered with BritNed are able to use the /v1/public/... endpoints for fetching publicly available data from Empire. See the [**API Navigator**](https://britned.github.io/empire-platform-api) for more information. Please see the relevant [Public data](https://github.com/britned/empire-platform-api/wiki/Public-data) page on Wiki for more information.
+> 💡 Users that are not registered with BritNed are able to use the endpoints prefixed with `/v1/public/...` for fetching publicly available data from **Empire**. See the [**API Navigator**](https://britned.github.io/empire-platform-api) for more information. Please also refer to the relevant [Public Data](https://github.com/britned/empire-platform-api/wiki/Public-Data) page on the Wiki for more information.
 
 ## 🔌 Environments
 
@@ -290,7 +291,7 @@ client = ApiClient(configuration=configuration)
 The `ApiClient` instance then can be used to construct individual clients for the different API categories.
 ​
 > ⚠️ Please make sure you use the right _API Base URL_ of the [environment](#-environments) you wish to use in the `host` parameter!
-​
+
 An example for retrieving ten Auctions ordered by the start of their bidding periods:
 ​
 ```python
