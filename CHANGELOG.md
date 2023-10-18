@@ -1,3 +1,29 @@
+## [1.1.0](https://github.com/britned/empire-platform-api/compare/v1.0.5...v1.1.0) (2023-10-18)
+
+
+### Features
+
+* **allocated-auctions:** add authenticated version of public endpoints
+* **allocated-auctions:** filter for participant results
+* **auctions:** add optional externalId for bids
+* **audit-logs:** add status based filtering to get audit logs
+* **audit-logs:** change get audit logs to use cursor based pagination
+* **nominations:** add new pre-nomination options endpoint for aggregated nominations
+* **reporting:** enable "all orgs" option for audit log and credit limit reports
+* **users:** allow resend and revoke invites with user management permissions
+
+
+### Bug Fixes
+
+* **auctions, public-auctions:** use explicit list of statuses available for auction schedules
+* **python:** datetime formatting in query params, remove dead validation code
+
+
+### Refactoring
+
+* **public-allocated-auctions:** use common schemas
+
+
 ### [1.0.5](https://github.com/britned/empire-platform-api/compare/v1.0.4...v1.0.5) (2023-09-27)
 
 > No changes affecting Participants.

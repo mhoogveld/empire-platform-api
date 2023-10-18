@@ -7,7 +7,7 @@ info:
     ---
 
     Additional documentation available in the API's [GitHub repository](https://github.com/britned/empire-platform-api)
-  version: 1.0.5
+  version: 1.1.0
   contact:
     name: BritNed
     url: https://www.britned.com
@@ -21,6 +21,8 @@ servers:
 tags:
   - name: metadata
     description: Metadata endpoints
+  - name: allocated-auction
+    description: Allocated Auctions
   - name: attachment
     description: Attachments
   - name: auction
@@ -84,6 +86,173 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/Version'
+  /v1/allocated-auctions:
+    get:
+      operationId: getAllocatedAuctions
+      description: |-
+        Fetch a paginated, sortable, filterable list of Allocated Auctions
+
+        ---
+
+        __Requires Permission:__ (at least one)
+          * `VIEW_PUBLISHED_AUCTIONS`
+          * `VIEW_ANY_AUCTIONS`
+      tags:
+        - allocated-auction
+      security:
+        - ApiKey: []
+        - AuthToken: []
+      x-permissions:
+        - VIEW_PUBLISHED_AUCTIONS
+        - VIEW_ANY_AUCTIONS
+      parameters:
+        - $ref: '#/components/parameters/PageLimit'
+        - $ref: '#/components/parameters/PageOffset'
+        - name: sortBy
+          in: query
+          required: true
+          schema:
+            $ref: '#/components/schemas/AllocatedAuctionSortBy'
+        - $ref: '#/components/parameters/BorderDirectionOptional'
+        - $ref: '#/components/parameters/TimescaleOptional'
+        - $ref: '#/components/parameters/ProductTypesOptional'
+        - $ref: '#/components/parameters/ParticipantIdOptional'
+        - name: participantStatus
+          in: query
+          schema:
+            $ref: '#/components/schemas/AllocatedAuctionParticipantStatus'
+        - name: deliveryPeriodStart
+          in: query
+          schema:
+            $ref: '#/components/schemas/MtuStart'
+        - name: deliveryPeriodEnd
+          in: query
+          schema:
+            $ref: '#/components/schemas/MtuEnd'
+        - name: query
+          in: query
+          schema:
+            type: string
+      responses:
+        '200':
+          description: __OK__
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AllocatedAuctionBatch'
+        '400':
+          description: |-
+            __Bad Request__
+
+            *  `INVALID_PARTICIPANT_ID` - specified Participant not found in the system
+            *  `INVALID_PARTICIPANT_FILTER` - the `X-Participant-Id` and `participantStatus` parameters need to be either both specified, or none specified
+          x-errors:
+            - code: INVALID_PARTICIPANT_ID
+              description: specified Participant not found in the system
+            - code: INVALID_PARTICIPANT_FILTER
+              description: the `X-Participant-Id` and `participantStatus` parameters need to be either both specified, or none specified
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '422':
+          description: |-
+            __Unprocessable Entity__
+
+            *  `PERIOD_MISALIGNED` - if delivery period start and end parameters are both set, they need to come after each other
+            *  `MTU_BORDER_MISMATCH` - delivery period start and end dates does not comform to MTU borders
+          x-errors:
+            - code: PERIOD_MISALIGNED
+              description: if delivery period start and end parameters are both set, they need to come after each other
+            - code: MTU_BORDER_MISMATCH
+              description: delivery period start and end dates does not comform to MTU borders
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+  /v1/allocated-auctions/aggregated:
+    get:
+      operationId: getAggregatedAllocatedAuctions
+      description: |-
+        Fetch a filterable list of Aggregated Allocated Auctions
+
+        ---
+
+        __Requires Permission:__ (at least one)
+          * `VIEW_PUBLISHED_AUCTIONS`
+          * `VIEW_ANY_AUCTIONS`
+      tags:
+        - allocated-auction
+      security:
+        - ApiKey: []
+        - AuthToken: []
+      x-permissions:
+        - VIEW_PUBLISHED_AUCTIONS
+        - VIEW_ANY_AUCTIONS
+      parameters:
+        - $ref: '#/components/parameters/BorderDirectionOptional'
+        - $ref: '#/components/parameters/TimescaleOptional'
+        - $ref: '#/components/parameters/ProductTypesOptional'
+        - $ref: '#/components/parameters/ParticipantIdOptional'
+        - name: participantStatus
+          in: query
+          schema:
+            $ref: '#/components/schemas/AllocatedAuctionParticipantStatus'
+        - name: deliveryPeriodStart
+          in: query
+          schema:
+            $ref: '#/components/schemas/MtuStart'
+        - name: deliveryPeriodEnd
+          in: query
+          schema:
+            $ref: '#/components/schemas/MtuEnd'
+      responses:
+        '200':
+          description: __OK__
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/AggregatedAllocatedAuction'
+        '400':
+          description: |-
+            __Bad Request__
+
+            *  `INVALID_PARTICIPANT_ID` - specified Participant not found in the system
+            *  `INVALID_PARTICIPANT_FILTER` - the `X-Participant-Id` and `participantStatus` parameters need to be either both specified, or none specified
+          x-errors:
+            - code: INVALID_PARTICIPANT_ID
+              description: specified Participant not found in the system
+            - code: INVALID_PARTICIPANT_FILTER
+              description: the `X-Participant-Id` and `participantStatus` parameters need to be either both specified, or none specified
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '422':
+          description: |-
+            __Unprocessable Entity__
+
+            *  `PERIOD_MISALIGNED` - if delivery period start and end parameters are both set, they need to come after each other
+            *  `MTU_BORDER_MISMATCH` - delivery period start and end dates does not comform to MTU borders
+          x-errors:
+            - code: PERIOD_MISALIGNED
+              description: if delivery period start and end parameters are both set, they need to come after each other
+            - code: MTU_BORDER_MISMATCH
+              description: delivery period start and end dates does not comform to MTU borders
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
   /v1/attachments:
     post:
       operationId: uploadAttachment
@@ -253,7 +422,7 @@ paths:
           in: query
           description: Filter for given status
           schema:
-            $ref: '#/components/schemas/AuctionStatus'
+            $ref: '#/components/schemas/AuctionFilterStatus'
         - name: biddingPeriodStart
           in: query
           description: Filter for start of bidding period
@@ -1153,7 +1322,8 @@ paths:
         - VIEW_ANY_AUDIT_LOGS
       parameters:
         - $ref: '#/components/parameters/PageLimit'
-        - $ref: '#/components/parameters/PageOffset'
+        - $ref: '#/components/parameters/PageOffsetOptional'
+        - $ref: '#/components/parameters/IdOffsetOptional'
         - name: sortBy
           in: query
           required: true
@@ -1178,6 +1348,12 @@ paths:
           in: query
           schema:
             type: string
+        - name: status
+          in: query
+          schema:
+            type: array
+            items:
+              $ref: '#/components/schemas/AuditLogStatus'
       responses:
         '200':
           description: __OK__
@@ -3481,6 +3657,45 @@ paths:
           $ref: '#/components/responses/Unauthorized'
         '403':
           $ref: '#/components/responses/Forbidden'
+  /v1/nominations/aggregated/options/pre-nominations:
+    get:
+      operationId: getAggregatedPreNominationOptions
+      description: |-
+        Fetch pre-nomination options for Aggregated Nominations
+
+        Returns if the selected Participant organisation has pre-nominations defined for all the timescales for the given delivery day.
+
+        ---
+
+        __Requires Permission:__ (at least one)
+          * `VIEW_OWN_TIMESCALE_OR_BPP_AGGREGATED_NOMINATIONS`
+          * `VIEW_ANY_TIMESCALE_OR_BPP_AGGREGATED_NOMINATIONS`
+      tags:
+        - nomination
+      security:
+        - ApiKey: []
+        - AuthToken: []
+      x-permissions:
+        - VIEW_OWN_TIMESCALE_OR_BPP_AGGREGATED_NOMINATIONS
+        - VIEW_ANY_TIMESCALE_OR_BPP_AGGREGATED_NOMINATIONS
+      parameters:
+        - $ref: '#/components/parameters/ParticipantId'
+        - name: deliveryDay
+          in: query
+          required: true
+          schema:
+            $ref: '#/components/schemas/Date'
+      responses:
+        '200':
+          description: __OK__
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AggregatedPreNominationOptions'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
   /v1/nominations/aggregated:
     get:
       operationId: getAggregatedNominations
@@ -4671,11 +4886,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/AllocatedAuctionBatch'
-        '401':
-          $ref: '#/components/responses/Unauthorized'
-        '403':
-          $ref: '#/components/responses/Forbidden'
+                $ref: '#/components/schemas/PublicAllocatedAuctionBatch'
         '422':
           description: |-
             __Unprocessable Entity__
@@ -4719,10 +4930,6 @@ paths:
                 type: array
                 items:
                   $ref: '#/components/schemas/AggregatedAllocatedAuction'
-        '401':
-          $ref: '#/components/responses/Unauthorized'
-        '403':
-          $ref: '#/components/responses/Forbidden'
         '422':
           description: |-
             __Unprocessable Entity__
@@ -4801,7 +5008,7 @@ paths:
           in: query
           description: Filter for given (published) status
           schema:
-            $ref: '#/components/schemas/PublicAuctionStatus'
+            $ref: '#/components/schemas/PublicAuctionFilterStatus'
         - name: biddingPeriodStart
           in: query
           description: Filter for start of bidding period
@@ -5594,7 +5801,6 @@ paths:
         - VIEW_OWN_AUDIT_LOGS
         - VIEW_ANY_AUDIT_LOGS
       parameters:
-        - $ref: '#/components/parameters/OrganisationId'
         - name: periodStart
           in: query
           required: true
@@ -5605,6 +5811,7 @@ paths:
           required: true
           schema:
             $ref: '#/components/schemas/Date'
+        - $ref: '#/components/parameters/OrganisationIdOptional'
         - in: query
           name: domains
           schema:
@@ -7679,6 +7886,102 @@ paths:
           $ref: '#/components/responses/Forbidden'
         '404':
           $ref: '#/components/responses/NotFound'
+  /v1/users/{id}/resend-invite:
+    put:
+      operationId: resendUserInvite
+      description: |-
+        Resend invitation for a User that has not yet accepted it
+
+        ---
+
+        __Requires Permission:__ (at least one)
+          * `MANAGE_OWN_USERS`
+          * `MANAGE_ANY_USERS`
+
+        __Generates Audit Log Entry:__ `RESEND_USER_INVITE`
+      tags:
+        - user
+      security:
+        - ApiKey: []
+        - AuthToken: []
+      x-permissions:
+        - MANAGE_OWN_USERS
+        - MANAGE_ANY_USERS
+      x-audit-log: RESEND_USER_INVITE
+      parameters:
+        - $ref: '#/components/parameters/Identifier'
+      responses:
+        '204':
+          $ref: '#/components/responses/NoContent'
+        '400':
+          description: |-
+            __Bad Request__
+
+            *  `AUTH_METHOD_MISMATCH` - only Users from Organisations authenticated through the Platform (not through SSO) can have their invitations resent
+            *  `STATUS_MISMATCH` - only users in INVITED status can have their invitations resent
+          x-errors:
+            - code: AUTH_METHOD_MISMATCH
+              description: only Users from Organisations authenticated through the Platform (not through SSO) can have their invitations resent
+            - code: STATUS_MISMATCH
+              description: only users in INVITED status can have their invitations resent
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+  /v1/users/{id}/revoke-invite:
+    put:
+      operationId: revokeUserInvite
+      description: |-
+        Revoke invitation for a User that has not yet accepted it
+
+        ---
+
+        __Requires Permission:__ (at least one)
+          * `MANAGE_OWN_USERS`
+          * `MANAGE_ANY_USERS`
+
+        __Generates Audit Log Entry:__ `REVOKE_USER_INVITE`
+      tags:
+        - user
+      security:
+        - ApiKey: []
+        - AuthToken: []
+      x-permissions:
+        - MANAGE_OWN_USERS
+        - MANAGE_ANY_USERS
+      x-audit-log: REVOKE_USER_INVITE
+      parameters:
+        - $ref: '#/components/parameters/Identifier'
+      responses:
+        '204':
+          $ref: '#/components/responses/NoContent'
+        '400':
+          description: |-
+            __Bad Request__
+
+            *  `AUTH_METHOD_MISMATCH` - only Users from Organisations authenticated through the Platform (not through SSO) can have their invitations revoked
+            *  `STATUS_MISMATCH` - only users in INVITED status can have their invitations revoked
+          x-errors:
+            - code: AUTH_METHOD_MISMATCH
+              description: only Users from Organisations authenticated through the Platform (not through SSO) can have their invitations revoked
+            - code: STATUS_MISMATCH
+              description: only users in INVITED status can have their invitations revoked
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
   /v1/users/{id}/suspend:
     put:
       operationId: suspendUser
@@ -7960,6 +8263,35 @@ components:
                     $ref: '#/components/schemas/Capacity'
                   system:
                     $ref: '#/components/schemas/Capacity'
+    AggregatedPreNominationOptions:
+      type: object
+      required:
+        - longTerm
+        - dayAhead
+        - intraDay
+      properties:
+        longTerm:
+          type: array
+          items:
+            $ref: '#/components/schemas/AggregatedPreNominationOptionsTimescale'
+        dayAhead:
+          type: array
+          items:
+            $ref: '#/components/schemas/AggregatedPreNominationOptionsTimescale'
+        intraDay:
+          type: array
+          items:
+            $ref: '#/components/schemas/AggregatedPreNominationOptionsTimescale'
+    AggregatedPreNominationOptionsTimescale:
+      type: object
+      required:
+        - direction
+        - preNominationsExists
+      properties:
+        direction:
+          $ref: '#/components/schemas/BorderDirection'
+        preNominationsExists:
+          type: boolean
     AllocatedAuction:
       type: object
       required:
@@ -8008,6 +8340,11 @@ components:
             $ref: '#/components/schemas/AllocatedAuction'
         totalCount:
           $ref: '#/components/schemas/Count'
+    AllocatedAuctionParticipantStatus:
+      type: string
+      enum:
+        - PLACED_BIDS
+        - RECEIVED_CAPACITY
     AllocatedAuctionSortBy:
       type: string
       enum:
@@ -8123,6 +8460,10 @@ components:
             $ref: '#/components/schemas/Auction'
         totalCount:
           $ref: '#/components/schemas/Count'
+    AuctionBidExternalId:
+      type: string
+      description: |
+        Optional external identifier for the bid, for example to differentiate between traders
     AuctionBidParticipant:
       type: object
       required:
@@ -8166,6 +8507,18 @@ components:
       type: string
       description: Generated display identifier
       example: BDL-NL-GB-E-BASE---220305-01
+    AuctionFilterStatus:
+      type: string
+      enum:
+        - CREATED
+        - INITIALISED
+        - PRELIMINARY_SPEC_PUBLISHED
+        - FINAL_SPEC_PUBLISHED
+        - BIDDING_OPEN
+        - BIDDING_CLOSED
+        - PROVISIONAL_RESULTS_PUBLISHED
+        - CANCELLED
+        - DELETED
     AuctionIntraDayProductType:
       type: string
       enum:
@@ -8356,7 +8709,6 @@ components:
       type: object
       required:
         - entries
-        - totalCount
       properties:
         entries:
           type: array
@@ -9193,6 +9545,8 @@ components:
       properties:
         id:
           $ref: '#/components/schemas/Identifier'
+        externalId:
+          $ref: '#/components/schemas/AuctionBidExternalId'
         bids:
           type: array
           items:
@@ -9678,6 +10032,7 @@ components:
         - INVALID_ORGANISATION_ID
         - INVALID_OUTAGE_PERIOD_VALUE
         - INVALID_PARTICIPANT_EIC_CODE
+        - INVALID_PARTICIPANT_FILTER
         - INVALID_PARTICIPANT_ID
         - INVALID_PERIOD_AMOUNT
         - INVALID_PURCHASE_VALUE
@@ -10204,6 +10559,8 @@ components:
       properties:
         id:
           $ref: '#/components/schemas/Identifier'
+        externalId:
+          $ref: '#/components/schemas/AuctionBidExternalId'
         value:
           $ref: '#/components/schemas/BidValue'
         updatedAt:
@@ -10471,7 +10828,6 @@ components:
         - BPP
         - BUY_NOW_AUCTION
         - FINANCE
-        - JAO
         - MANUAL_MESSAGE
         - NOMINATION
         - OPERATIONAL_DATAFLOW
@@ -11561,6 +11917,18 @@ components:
                     $ref: '#/components/schemas/BorderDirection'
                   flow:
                     $ref: '#/components/schemas/Capacity'
+    PublicAllocatedAuctionBatch:
+      type: object
+      required:
+        - entries
+        - totalCount
+      properties:
+        entries:
+          type: array
+          items:
+            $ref: '#/components/schemas/AllocatedAuction'
+        totalCount:
+          $ref: '#/components/schemas/Count'
     PublicAuction:
       type: object
       required:
@@ -11612,6 +11980,15 @@ components:
         - SUCCESSFUL
         - PARTIALLY_SUCCESSFUL
         - UNSUCCESSFUL
+    PublicAuctionFilterStatus:
+      type: string
+      enum:
+        - PRELIMINARY_SPEC_PUBLISHED
+        - FINAL_SPEC_PUBLISHED
+        - BIDDING_OPEN
+        - BIDDING_CLOSED
+        - PROVISIONAL_RESULTS_PUBLISHED
+        - CANCELLED
     PublicAuctionStatus:
       type: string
       enum:
@@ -12525,6 +12902,8 @@ components:
             properties:
               id:
                 $ref: '#/components/schemas/NullableIdentifier'
+              externalId:
+                $ref: '#/components/schemas/AuctionBidExternalId'
               bids:
                 type: array
                 items:
@@ -12550,6 +12929,8 @@ components:
             properties:
               id:
                 $ref: '#/components/schemas/NullableIdentifier'
+              externalId:
+                $ref: '#/components/schemas/AuctionBidExternalId'
               value:
                 $ref: '#/components/schemas/BidValue'
     SubmitNominationsMtu:
@@ -13068,27 +13449,6 @@ components:
           schema:
             $ref: '#/components/schemas/ErrorResponse'
   parameters:
-    BorderDirectionWithBoth:
-      in: query
-      name: borderDirection
-      required: true
-      description: Border Direction with additional 'BOTH' option
-      schema:
-        $ref: '#/components/schemas/BorderDirectionWithBoth'
-    MtuSize:
-      in: query
-      name: mtuSize
-      required: true
-      description: MTU Size definition
-      schema:
-        $ref: '#/components/schemas/MtuSize'
-    Identifier:
-      in: path
-      name: id
-      required: true
-      description: Internal unique ID of an entity
-      schema:
-        $ref: '#/components/schemas/Identifier'
     PageLimit:
       in: query
       name: limit
@@ -13118,16 +13478,58 @@ components:
       description: Auction Timescale (optional)
       schema:
         $ref: '#/components/schemas/AuctionTimescale'
+    ProductTypesOptional:
+      in: query
+      name: productTypes
+      description: List of Auction Product Types (optional)
+      schema:
+        type: array
+        items:
+          $ref: '#/components/schemas/AuctionProductType'
+    ParticipantIdOptional:
+      in: header
+      name: X-Participant-Id
+      description: Internal ID of a Participant-type Organisation (optional)
+      schema:
+        $ref: '#/components/schemas/Identifier'
+    BorderDirectionWithBoth:
+      in: query
+      name: borderDirection
+      required: true
+      description: Border Direction with additional 'BOTH' option
+      schema:
+        $ref: '#/components/schemas/BorderDirectionWithBoth'
+    MtuSize:
+      in: query
+      name: mtuSize
+      required: true
+      description: MTU Size definition
+      schema:
+        $ref: '#/components/schemas/MtuSize'
+    Identifier:
+      in: path
+      name: id
+      required: true
+      description: Internal unique ID of an entity
+      schema:
+        $ref: '#/components/schemas/Identifier'
     ProductTypeOptional:
       in: query
       name: productType
       description: Auction Product Type (optional)
       schema:
         $ref: '#/components/schemas/AuctionProductType'
-    ParticipantIdOptional:
-      in: header
-      name: X-Participant-Id
-      description: Internal ID of a Participant-type Organisation (optional)
+    PageOffsetOptional:
+      in: query
+      name: offset
+      description: Offset in the list of records to return
+      schema:
+        type: integer
+        minimum: 0
+    IdOffsetOptional:
+      in: query
+      name: idOffset
+      description: Offset by ID in the list of records to return
       schema:
         $ref: '#/components/schemas/Identifier'
     OrganisationIdOptional:
@@ -13205,14 +13607,6 @@ components:
       description: Internal ID of an Organisation
       schema:
         $ref: '#/components/schemas/Identifier'
-    ProductTypesOptional:
-      in: query
-      name: productTypes
-      description: List of Auction Product Types (optional)
-      schema:
-        type: array
-        items:
-          $ref: '#/components/schemas/AuctionProductType'
     OrganisationIds:
       in: header
       name: X-Organisation-Ids
