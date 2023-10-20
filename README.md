@@ -304,6 +304,22 @@ auctions = auction_api.get_auctions(
 print(auctions)
 ```
 
+> ❗ When dealing with `datetime` objects, please do NOT use "naive" objects, always stick to ["aware"](https://docs.python.org/3/library/datetime.html#aware-and-naive-objects) ones, which include timezone information, otherwise your request will fail.
+
+Example of correct `datetime` handling:
+ 
+```python
+from datetime import datetime, timezone
+
+beginning_of_year = datetime(2023, 1, 1, 0, 0, 0, 0, timezone.utc)
+beginning_of_year.isoformat()
+
+now = datetime.now(timezone.utc)
+now.isoformat()
+
+# notice the correct `+00:00` timezone suffixes
+```
+
 ## 📖 Changelog
 
 Changes in particular versions of the API Specification (in the [📚 **openapi.yaml**](openapi.yaml) file) are automatically tracked in [CHANGELOG.md](CHANGELOG.md).
