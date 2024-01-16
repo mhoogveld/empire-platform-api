@@ -7,7 +7,7 @@ info:
     ---
 
     Additional documentation available in the API's [GitHub repository](https://github.com/britned/empire-platform-api)
-  version: 1.1.0
+  version: 2.0.0
   contact:
     name: BritNed
     url: https://www.britned.com
@@ -782,7 +782,9 @@ paths:
                 - must be a multiply of the Auction's allocation resolution
                 - must be less than or equal to the "maximum bid capacity" in the Partcipant's Bidding Configuration for the Auction's border direction
             *  `INVALID_BID_PRICE`
-                - must be greater than or equal to the configured "minimum bid price" for the Auction
+                - depending on "minimum bid price" being configured for the Auction:
+                  * if NOT set: must be greater than or equal to zero
+                  * if set: must be greater than or equal to the configured "minimum bid price"
                 - must be less than or equal to the "maximum bid price" in the Participant's Bidding Configuration for the Auction's border direction
                 - price value must be unique across all bids for the given Auction
             *  `TOO_MANY_BIDS`
@@ -802,7 +804,9 @@ paths:
                 - must be less than or equal to the "maximum bid capacity" in the Partcipant's Bidding Configuration for the Auction's border direction
             - code: INVALID_BID_PRICE
               description: |
-                - must be greater than or equal to the configured "minimum bid price" for the Auction
+                - depending on "minimum bid price" being configured for the Auction:
+                  * if NOT set: must be greater than or equal to zero
+                  * if set: must be greater than or equal to the configured "minimum bid price"
                 - must be less than or equal to the "maximum bid price" in the Participant's Bidding Configuration for the Auction's border direction
                 - price value must be unique across all bids for the given Auction
             - code: TOO_MANY_BIDS
@@ -5924,6 +5928,100 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/ErrorResponse'
+  /v1/reporting/finance/credit-cover:
+    get:
+      operationId: getFinanceCreditCoverReport
+      description: |-
+        Fetch Finance Credit Cover Report
+
+        ---
+
+        __Requires Permission:__ (at least one)
+          * `VIEW_OWN_FINANCE_REPORTS`
+          * `VIEW_ANY_FINANCE_REPORTS`
+      tags:
+        - reporting
+      security:
+        - ApiKey: []
+        - AuthToken: []
+      x-permissions:
+        - VIEW_OWN_FINANCE_REPORTS
+        - VIEW_ANY_FINANCE_REPORTS
+      parameters:
+        - $ref: '#/components/parameters/ParticipantIds'
+        - name: periodStart
+          in: query
+          required: true
+          schema:
+            $ref: '#/components/schemas/Date'
+        - name: periodEnd
+          in: query
+          required: true
+          schema:
+            $ref: '#/components/schemas/Date'
+        - name: creditType
+          in: query
+          required: true
+          schema:
+            $ref: '#/components/schemas/CreditCoverType'
+      responses:
+        '200':
+          description: __OK__
+          content:
+            application/vnd.openxmlformats-officedocument.spreadsheetml.sheet:
+              schema:
+                $ref: '#/components/schemas/ReportFile'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '422':
+          description: |-
+            __Unprocessable Entity__
+
+            *  `PERIOD_MISALIGNED` - period start and end dates must come after each other
+            *  `PERIOD_TOO_LONG` - period the maximum period length is 1 year
+          x-errors:
+            - code: PERIOD_MISALIGNED
+              description: period start and end dates must come after each other
+            - code: PERIOD_TOO_LONG
+              description: period the maximum period length is 1 year
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+  /v1/reporting/finance/credit-limit:
+    get:
+      operationId: getFinanceCreditLimitReport
+      description: |-
+        Fetch Finance Credit Limit Report
+
+        ---
+
+        __Requires Permission:__ (at least one)
+          * `VIEW_OWN_FINANCE_REPORTS`
+          * `VIEW_ANY_FINANCE_REPORTS`
+      tags:
+        - reporting
+      security:
+        - ApiKey: []
+        - AuthToken: []
+      x-permissions:
+        - VIEW_OWN_FINANCE_REPORTS
+        - VIEW_ANY_FINANCE_REPORTS
+      parameters:
+        - $ref: '#/components/parameters/ParticipantIdOptional'
+      responses:
+        '200':
+          description: __OK__
+          content:
+            application/vnd.openxmlformats-officedocument.spreadsheetml.sheet:
+              schema:
+                $ref: '#/components/schemas/ReportFile'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
   /v1/reporting/finance/invoice-details:
     get:
       operationId: getFinanceInvoiceDetailsReport
@@ -6060,11 +6158,11 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/ErrorResponse'
-  /v1/reporting/finance/auction-results-settlement:
+  /v1/reporting/finance/uiosi:
     get:
-      operationId: getFinanceAuctionResultsSettlementReport
+      operationId: getFinanceUiosiReport
       description: |-
-        Fetch Finance Auction Results Settlement Report
+        Fetch Finance UIoSI Report
 
         ---
 
@@ -6091,20 +6189,8 @@ paths:
           required: true
           schema:
             $ref: '#/components/schemas/Date'
-        - name: finalResultsPublishedFrom
-          in: query
-          schema:
-            $ref: '#/components/schemas/Date'
-        - name: finalResultsPublishedTo
-          in: query
-          schema:
-            $ref: '#/components/schemas/Date'
-        - name: accountingCodes
-          in: query
-          required: true
-          schema:
-            items:
-              $ref: '#/components/schemas/SageCode'
+        - $ref: '#/components/parameters/ParticipantIds'
+        - $ref: '#/components/parameters/Timescale'
       responses:
         '200':
           description: __OK__
@@ -6112,6 +6198,18 @@ paths:
             application/vnd.openxmlformats-officedocument.spreadsheetml.sheet:
               schema:
                 $ref: '#/components/schemas/ReportFile'
+        '400':
+          description: |-
+            __Bad Request__
+
+            *  `TIMESCALE_MISMATCH` - endpoint matching Auction LT/DA timescale need to be used
+          x-errors:
+            - code: TIMESCALE_MISMATCH
+              description: endpoint matching Auction LT/DA timescale need to be used
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
         '401':
           $ref: '#/components/responses/Unauthorized'
         '403':
@@ -6120,25 +6218,22 @@ paths:
           description: |-
             __Unprocessable Entity__
 
-            *  `PERIOD_MISALIGNED` - both for final resuls published period and delivery period start and end dates must come after each other
-            *  `PERIOD_TOO_LONG` - both for final results published period and delivery period the maximum period length is 1 year
-            *  `INVALID_ACCOUNTING_CODE` - only Auction-relevant accounting codes are acceptable. The Border direction must be the same as the accounting code's border direction
+            *  `PERIOD_MISALIGNED` - delivery period start and end dates must come after each other
+            *  `PERIOD_TOO_LONG` - delivery period the maximum period length is 1 year
           x-errors:
             - code: PERIOD_MISALIGNED
-              description: both for final resuls published period and delivery period start and end dates must come after each other
+              description: delivery period start and end dates must come after each other
             - code: PERIOD_TOO_LONG
-              description: both for final results published period and delivery period the maximum period length is 1 year
-            - code: INVALID_ACCOUNTING_CODE
-              description: only Auction-relevant accounting codes are acceptable. The Border direction must be the same as the accounting code's border direction
+              description: delivery period the maximum period length is 1 year
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/ErrorResponse'
-  /v1/reporting/finance/uiosi:
+  /v1/reporting/finance/uiosi-hourly:
     get:
-      operationId: getFinanceUiosiReport
+      operationId: getFinanceUiosiHourlyReport
       description: |-
-        Fetch Finance UIoSI Report
+        Fetch Finance UIoSI Hourly Report
 
         ---
 
@@ -9405,6 +9500,12 @@ components:
       properties:
         id:
           $ref: '#/components/schemas/Identifier'
+    CreditCoverType:
+      type: string
+      enum:
+        - BOTH
+        - BANK_DEPOSIT
+        - LETTER_OF_CREDIT
     Currency:
       type: number
       description: Currency value in Euros (€), accepted with a precision of maximum 2 decimal places
@@ -9682,6 +9783,7 @@ components:
                   * `requestedCapacity` - Sum of ALL bids for the given MTU and Participant in kilowatts
                   * `allocatedTrs` - The SUM AC for the given MTU and Participant for the Auction in kilowatts
                 required:
+                  - requestedCapacity
                   - allocatedTrs
                 properties:
                   requestedCapacity:

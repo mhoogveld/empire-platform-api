@@ -1,3 +1,22 @@
+## [2.0.0](https://github.com/britned/empire-platform-api/compare/v1.1.0...v2.0.0) (2024-01-16)
+
+
+### ⚠ BREAKING CHANGES
+
+* **auctions:** remove access for Participants to others' DA/ID allocation results
+* **reporting:** remove access to getFinanceAuctionResultsSettlementReport for Participants
+
+### Features
+
+* **auctions:** allow price to be set as 0 for LT bids
+* **auctions:** remove access for Participants to others' DA/ID allocation results
+* **reporting:** add access to getFinanceCreditCoverReport for Participants
+* **reporting:** add access to getFinanceCreditLimitReport for Participants
+* **reporting:** add uiosi hourly finance report
+* **reporting:** remove access to getFinanceAuctionResultsSettlementReport for Participants
+
+
+
 ## [1.1.0](https://github.com/britned/empire-platform-api/compare/v1.0.5...v1.1.0) (2023-10-18)
 
 
