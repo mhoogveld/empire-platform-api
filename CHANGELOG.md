@@ -1,3 +1,16 @@
+## [3.0.0](https://github.com/britned/empire-platform-api/compare/v2.0.0...v3.0.0) (2024-02-16)
+
+
+### ⚠ BREAKING CHANGES
+
+* **reporting:** auction allocation results can be queried using a displayId
+* **auctions:** uniform filtering for enum arrays both internal/public list and results
+
+### Features
+
+* **auctions:** uniform filtering for enum arrays both internal/public list and results
+* **reporting:** auction allocation results can be queried using a displayId
+
 ## [2.0.0](https://github.com/britned/empire-platform-api/compare/v1.1.0...v2.0.0) (2024-01-16)
 
 

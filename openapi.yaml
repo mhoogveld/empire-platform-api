@@ -7,7 +7,7 @@ info:
     ---
 
     Additional documentation available in the API's [GitHub repository](https://github.com/britned/empire-platform-api)
-  version: 2.0.0
+  version: 3.0.0
   contact:
     name: BritNed
     url: https://www.britned.com
@@ -114,7 +114,7 @@ paths:
           schema:
             $ref: '#/components/schemas/AllocatedAuctionSortBy'
         - $ref: '#/components/parameters/BorderDirectionOptional'
-        - $ref: '#/components/parameters/TimescaleOptional'
+        - $ref: '#/components/parameters/TimescalesOptional'
         - $ref: '#/components/parameters/ProductTypesOptional'
         - $ref: '#/components/parameters/ParticipantIdOptional'
         - name: participantStatus
@@ -195,7 +195,7 @@ paths:
         - VIEW_ANY_AUCTIONS
       parameters:
         - $ref: '#/components/parameters/BorderDirectionOptional'
-        - $ref: '#/components/parameters/TimescaleOptional'
+        - $ref: '#/components/parameters/TimescalesOptional'
         - $ref: '#/components/parameters/ProductTypesOptional'
         - $ref: '#/components/parameters/ParticipantIdOptional'
         - name: participantStatus
@@ -416,13 +416,15 @@ paths:
           schema:
             $ref: '#/components/schemas/AuctionSortBy'
         - $ref: '#/components/parameters/BorderDirectionOptional'
-        - $ref: '#/components/parameters/TimescaleOptional'
-        - $ref: '#/components/parameters/ProductTypeOptional'
-        - name: status
+        - $ref: '#/components/parameters/TimescalesOptional'
+        - $ref: '#/components/parameters/ProductTypesOptional'
+        - name: statuses
           in: query
-          description: Filter for given status
+          description: Filter for given statuses
           schema:
-            $ref: '#/components/schemas/AuctionFilterStatus'
+            type: array
+            items:
+              $ref: '#/components/schemas/AuctionFilterStatus'
         - name: biddingPeriodStart
           in: query
           description: Filter for start of bidding period
@@ -3704,7 +3706,7 @@ paths:
     get:
       operationId: getAggregatedNominations
       description: |-
-        Fetch aggregated Nominatinons for a given:
+        Fetch aggregated Nominations for a given:
           - delivery day
           - type of aggregated nomination
 
@@ -4870,7 +4872,7 @@ paths:
           schema:
             $ref: '#/components/schemas/AllocatedAuctionSortBy'
         - $ref: '#/components/parameters/BorderDirectionOptional'
-        - $ref: '#/components/parameters/TimescaleOptional'
+        - $ref: '#/components/parameters/TimescalesOptional'
         - $ref: '#/components/parameters/ProductTypesOptional'
         - name: deliveryPeriodStart
           in: query
@@ -4915,7 +4917,7 @@ paths:
         - public-allocated-auction
       parameters:
         - $ref: '#/components/parameters/BorderDirectionOptional'
-        - $ref: '#/components/parameters/TimescaleOptional'
+        - $ref: '#/components/parameters/TimescalesOptional'
         - $ref: '#/components/parameters/ProductTypesOptional'
         - name: deliveryPeriodStart
           in: query
@@ -5006,13 +5008,15 @@ paths:
           schema:
             $ref: '#/components/schemas/AuctionSortBy'
         - $ref: '#/components/parameters/BorderDirectionOptional'
-        - $ref: '#/components/parameters/TimescaleOptional'
-        - $ref: '#/components/parameters/ProductTypeOptional'
-        - name: status
+        - $ref: '#/components/parameters/TimescalesOptional'
+        - $ref: '#/components/parameters/ProductTypesOptional'
+        - name: statuses
           in: query
-          description: Filter for given (published) status
+          description: Filter for given (published) statuses
           schema:
-            $ref: '#/components/schemas/PublicAuctionFilterStatus'
+            type: array
+            items:
+              $ref: '#/components/schemas/PublicAuctionFilterStatus'
         - name: biddingPeriodStart
           in: query
           description: Filter for start of bidding period
@@ -5387,11 +5391,15 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/ErrorResponse'
-  /v1/reporting/auctions/{id}/allocation-results:
+  /v1/reporting/auctions/{idOrDisplayId}/allocation-results:
     get:
       operationId: getAuctionAllocationResultsReport
       description: |-
         Fetch Auction Allocation Results Report in "ECAN Allocation Results Document v4.0" format
+
+        Report can be fetched by submitting in the `idOrDisplayId` parameter either:
+          - an "Internal ID" / in UUIDv4 format, can be obtained from the browser URLs or the `id` field of an Auction object
+          - a "Display ID" / shown on the GUI, or can be obtained from the `displayId` field of an Auction object
 
         ---
 
@@ -5407,7 +5415,11 @@ paths:
         - VIEW_PUBLISHED_AUCTIONS
         - VIEW_ANY_AUCTIONS
       parameters:
-        - $ref: '#/components/parameters/Identifier'
+        - in: path
+          name: idOrDisplayId
+          required: true
+          schema:
+            type: string
         - $ref: '#/components/parameters/ParticipantId'
       responses:
         '200':
@@ -8928,6 +8940,7 @@ components:
         - REVOKE_USER_INVITE
         - SUSPEND_USER
         - UNSUSPEND_USER
+        - RESET_USER_SECOND_AUTH_FACTOR
         - IMPERSONATE_USER
         - UPDATE_PROFILE_DETAILS
         - UPDATE_PREFERENCES
@@ -10172,6 +10185,7 @@ components:
         - NO_EXCHANGE_RATE
         - NO_OFFERS_PRESENT
         - NOT_FOUND
+        - NTC_ADDITION_ALREADY_IN_RANGE
         - OC_DEFINITION_MISMATCH
         - OC_LARGER_THAN_MAX_ATC
         - OC_UNDEFINED
@@ -10535,7 +10549,7 @@ components:
         direction:
           $ref: '#/components/schemas/BorderDirection'
         deliveryMonth:
-          $ref: '#/components/schemas/Count'
+          $ref: '#/components/schemas/BeginningOfMonth'
         netAmount:
           $ref: '#/components/schemas/Currency'
         vatRate:
@@ -13574,12 +13588,14 @@ components:
       description: Border Direction (optional)
       schema:
         $ref: '#/components/schemas/BorderDirection'
-    TimescaleOptional:
+    TimescalesOptional:
       in: query
-      name: timescale
-      description: Auction Timescale (optional)
+      name: timescales
+      description: List of Auction Timescales (optional)
       schema:
-        $ref: '#/components/schemas/AuctionTimescale'
+        type: array
+        items:
+          $ref: '#/components/schemas/AuctionTimescale'
     ProductTypesOptional:
       in: query
       name: productTypes
@@ -13615,12 +13631,6 @@ components:
       description: Internal unique ID of an entity
       schema:
         $ref: '#/components/schemas/Identifier'
-    ProductTypeOptional:
-      in: query
-      name: productType
-      description: Auction Product Type (optional)
-      schema:
-        $ref: '#/components/schemas/AuctionProductType'
     PageOffsetOptional:
       in: query
       name: offset
@@ -13694,6 +13704,12 @@ components:
         type: array
         items:
           $ref: '#/components/schemas/AuctionTimescale'
+    TimescaleOptional:
+      in: query
+      name: timescale
+      description: Auction Timescale (optional)
+      schema:
+        $ref: '#/components/schemas/AuctionTimescale'
     ParticipantIdsOptional:
       in: header
       name: X-Participant-Ids
