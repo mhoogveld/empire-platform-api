@@ -11992,7 +11992,7 @@ components:
     PublicAggregatedNominationsOverviewResponse:
       type: object
       required:
-        - mtusize
+        - mtuSize
         - mtus
       properties:
         mtuSize:
